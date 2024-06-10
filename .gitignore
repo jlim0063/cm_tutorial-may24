@@ -1,0 +1,6 @@
+output/*
+.RData
+.RDataTmp
+.Rhistory
+.Rproj.user
+data/m1_model_data.Rdata

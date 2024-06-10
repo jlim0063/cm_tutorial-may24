@@ -1,0 +1,64 @@
+---
+title: 'Q-Learning Model Parameters'
+author: Jeryl Lim
+date: 9 May 2024
+output: 
+  prettydoc::html_pretty:
+    theme: leonids
+    highlight: github
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## **Q-Learning Model Parameters**
+
+A Q-Learning model is a reinforcement learning model, and assumes that in a decision environment, the following are present:
+
+-   $s$ - a state in which the decision is made
+-   $a$ - a possible action in the given state
+-   $Q(s_{t}, a_{t})$ - the estimated value of taking an action $a$ in a particular state $s_{t}$
+-   $Q(s_{t+1}, a_{t+1})$ - the expected value of taking an action $a$ on the next iteration of state $s$, which is $s+1$.
+
+On a reversal learning task, the state simply refers to the singular trial environment on a given trial that lasts from when the participant is presented information up till the point the participant makes a decision. On each trial of a reversal learning task, the participant is presented stimuli *once*, and thereafter makes *one* decision. Hence, $s$ remains $=1$ throughout the entire task, and we will not bother with including $s$ in our notations for this tutorial.
+
+We will be using a binary-choice reversal learning task for the purpose of our tutorials. On each trial, the participant is presented with Stimuli A and B, and there are hence two options - choosing A or choosing B. We write the value of choosing A on trial $t$ as $Q(A)_t$, and the value of choosing B on trial $t$ as $Q(B)_t$.
+
+Based on the feedback from choosing A on a given trial $t$, the value of choosing A on the next trial (i.e., $Q(A)_{t+1}$) can be calculated. This is given by the formula:
+
+$$ Q(A)_{t+1} = Q(A)_t + \eta(R-Q(A)_t) $$
+
+where:
+
+-   $Q(A)_{t+1}$ is the expected value of choosing *A* on the next trial
+-   $Q(A)_{t}$ is the expected value of choosing *A* on the current trial $t$
+-   $R$ is the amount received (i.e., feedback) on current trial $t$, which would mean:
+    -   The term $R-Q(A)_t)$ is the *reward prediction error* i.e., the difference between what was expected and the actual $R$ received
+-   $\eta$ is the *learning rate* of the participant, ranging 0 - 1.
+    -   This captures the extent to which participants *integrates the feedback* received on the current trial. If $\eta$ is very close to 1, then the participant is allocating a lot of importance to the feedback on trial $t$. In other words, they are more sensitive to, and hence learns quickly from feedback. If it's close to 0, the participant hardly takes the feedback into consideration when deciding whether to pick *A* again on the next trial.
+
+The same formula applies to computing the value of choosing B on the next trial, i.e., $Q(B)_{t+1}$.
+
+In sum, if $Q(A)_{t+1}>Q(B)_{t+1}$, then the probability of the participant choosing *A* over *B* on trial $t+1$ should be higher, i.e., $pr(A)_{t+1}>pr(B)_{t+1}$.
+
+We can calculate $pr(A)$ through applying a softmax function:
+
+$$ pr(A) = \frac{e^{\beta \cdot Q(A)}}{e^{\beta \cdot Q(A)} + e^{\beta \cdot Q(B)}} $$
+
+where:
+
+-   $pr(A)$ is the probability of choosing *A*
+-   $\beta$ is the softmax inverse temperature, and can be theoretically interpreted as:
+    -   An **explore/exploit parameter** - capturing whether participants are more likely to *exploit* the "good" option, or "explore" other options
+    -   A measure of **choice stochasticity/behavioural consistency** - capturing the degree to which participants' choices are random, or how well their choices align with their internal beliefs.
+
+We include $\beta$ in our equation to account for the fact that even though the value of $Q(A)$ may be higher, a participant may not necessarily pick it on the next trial. A participant may want to *explore* the other option out of uncertainty. On the other hand, an *exploitative* participant may repeatedly pick *A* when $Q(A)>Q(B)$, just to maximise the amount of reward gained. The exponentiation $e$ of $\beta \cdot Q(A)$ and $\beta \cdot Q(B)$ is just to ensure that the probability value we get falls between 0 and 1.
+
+Another mathematically-equivalent way of writing the softmax function is:
+
+$$ pr(A) = \frac{1}{1 + e^{-\beta(Q(A) - Q(B))}} $$
+
+Transforming $Q$ values into probability values implies participants' choices are not **deterministic** in nature. Instead, picking one choice over the other is conceptualised as a **probabilistic** event. Plugging higher $\beta$ values into the equation would make a participant's choices *more* **deterministic** (note: *but not certain*), whereas lower values imply a lesser degree of alignment between their beliefs and choices.
+
+------------------------------------------------------------------------
