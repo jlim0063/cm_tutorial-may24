@@ -23,8 +23,14 @@ sim_data_opAL <- read.csv(here::here("data/simulated_data_opAL.csv")) %>% as.dat
 sim_data <- sim_data_QL
 
 # Set run model flag
-run_model_flag <- T
+run_model_flag <- F
 
+# Load previously saved data?
+load_rdata_flag <- T
+if (load_rdata_flag == T){
+  load(here::here("output/m1_model_objects.Rdata"))
+  load(here::here("output/m2_model_objects.Rdata"))
+}
 
 ## For the purpose of our tutorial, we will run both the QLearning model (Rescorla-Wagner) and the 
 ## Opponent Actor Learning (OpAL) model on `sim_data_QL`, just to demonstrate model comparisons.
