@@ -8,7 +8,6 @@ require(hrbrthemes)
 # Model 1 Q-Learning ------------------------------------------------------
 # =========================================================================
 
-
 ## Create tally datatable
 m1_tally_df <- cbind(sim_data[, .(subject, condition, trial_no, ptresp, cresp, outcome, trials_since_reversal)], m1_pred_right_prop) %>% as.data.table()
 
@@ -64,7 +63,7 @@ colors <- c("#617a89", ft_cols$red)
 
 m1_pre_plot <- ggplot(m1_performance[condition == "pre"], aes(x = trials_since_reversal, y = mean_correct, color = ptresp_by, fill = ptresp_by)) + 
   geom_line(linewidth =1.2, alpha = 1) +
-  scale_linetype_manual(values = c("dashed", "solid")) + 
+  # scale_linetype_manual(values = c("dashed", "solid")) + 
   geom_ribbon(aes(ymin = ci.lower, ymax = ci.upper, color = NULL), alpha = .201 ) + 
   scale_color_manual(values = colors, labels = c("Model", "Participant")) +
   scale_fill_manual(values = c("#617a89", ft_cols$red), labels = c("Model", "Participant")) +
@@ -76,7 +75,7 @@ m1_pre_plot <- ggplot(m1_performance[condition == "pre"], aes(x = trials_since_r
 
 m1_post_plot <- ggplot(m1_performance[condition == "post"], aes(x = trials_since_reversal, y = mean_correct, color = ptresp_by, fill = ptresp_by)) + 
   geom_line(linewidth =1.2, alpha = 1) +
-  scale_linetype_manual(values = c("dashed", "solid")) + 
+  # scale_linetype_manual(values = c("dashed", "solid")) + 
   geom_ribbon(aes(ymin = ci.lower, ymax = ci.upper, color = NULL), alpha = .201 ) + 
   scale_color_manual(values = colors, labels = c("Model", "Participant")) +
   scale_fill_manual(values = c("#617a89", ft_cols$red), labels = c("Model", "Participant")) +
@@ -86,6 +85,19 @@ m1_post_plot <- ggplot(m1_performance[condition == "post"], aes(x = trials_since
   labs(title = "Proportion of correct choices during 'post' (Simulated)", subtitle = "Model versus 'Participant'", 
        x = "Time since reversal", y = "Proportion of choices correct", color = "Choices by", fill = "Choices by") 
 
+### If you want a facet grid plot
+
+m1_plot <- ggplot(m1_performance, aes(x = trials_since_reversal, y = mean_correct, color = ptresp_by, fill = ptresp_by)) + 
+  geom_line(linewidth =1.2, alpha = 1) +
+  # scale_linetype_manual(values = c("dashed", "solid")) + 
+  geom_ribbon(aes(ymin = ci.lower, ymax = ci.upper, color = NULL), alpha = .201 ) + 
+  scale_color_manual(values = colors, labels = c("Model", "Participant")) +
+  scale_fill_manual(values = c("#617a89", ft_cols$red), labels = c("Model", "Participant")) +
+  theme_ipsum_rc() +
+  ylim(0, 1) + 
+  theme(axis.title.x=element_text(size = 16), axis.title.y = element_text(size = 16)) + 
+  labs(title = "Proportion of correct choices during 'post' (Simulated)", subtitle = "Model versus 'Participant'", 
+       x = "Time since reversal", y = "Proportion of choices correct", color = "Choices by", fill = "Choices by") 
 
 m1_plot + facet_grid(cols = vars(condition))
 
@@ -156,13 +168,12 @@ eta_pre_corr_plot <- ggplot(data = m1_est_v_actual_parameters, aes(x = true_eta_
   theme(axis.title.x =element_text(size = 16), axis.title.y = element_text(size = 16))+
   ylim(0, 1) + xlim(0, 1)
 
-
 ## Δ η prior correlations
 delta_corr_plot<-ggplot(data = m1_est_v_actual_parameters, aes(x = true_delta_eta, y = m1_est_delta_eta )) + 
   geom_point(size = 2) + 
   geom_smooth(method = "lm", color = "#444791", fill = "#444791", alpha = .2, fullrange = T ) +
   theme_ipsum() +
-  labs(title = expression(Δ[η[prior]]), x = "Actual", y = "Model-estimated") +
+  labs(title = expression(Δ[η]), x = "Actual", y = "Model-estimated") +
   theme(axis.title.x =element_text(size = 16), axis.title.y = element_text(size = 16)) + 
   ylim(-1.5, 2) + xlim(-1.5, 2)
 

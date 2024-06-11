@@ -32,8 +32,8 @@ if (load_rdata_flag == T){
   load(here::here("output/m2_model_objects.Rdata"))
 }
 
-## For the purpose of our tutorial, we will run both the QLearning model (Rescorla-Wagner) and the 
-## Opponent Actor Learning (OpAL) model on `sim_data_QL`, just to demonstrate model comparisons.
+## For the purpose of our tutorial, we will run both the QLearning model (Rescorla-Wagner) and 
+## a Bayesian model on `sim_data_QL`, just to demonstrate model comparisons.
 ## For parameter recovery, you should be comparing each model's estimates to the corresponding 
 ## simulated dataset, because it doesn't make sense to compare estimated values to a wholly different
 ## set of parameters used to simulate the data.
@@ -454,5 +454,3 @@ save(list = ls(pattern = "m2_"), file = here::here("output", "model-Rdata", "m2_
 # Model comparison --------------------------------------------------------
 
 loo::loo_compare(m1_model_WAIC, m2_model_WAIC)
-
-## ======================
