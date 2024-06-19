@@ -20,13 +20,13 @@ sim_data_QL   <- read.csv(here::here("data/simulated_data_2.csv")) %>% as.data.t
 sim_data_opAL <- read.csv(here::here("data/simulated_data_opAL.csv")) %>% as.data.table()
 
 # Pick which dataset to run
-sim_data <- sim_data_QL
+sim_data <- sim_data_opAL
 
 # Set run model flag
-run_model_flag <- F
+run_model_flag <- T
 
 # Load previously saved data?
-load_rdata_flag <- T
+load_rdata_flag <-F
 if (load_rdata_flag == T){
   load(here::here("output/m1_model_objects.Rdata"))
   load(here::here("output/m2_model_objects.Rdata"))
@@ -449,6 +449,73 @@ mean(m2_delta_w_prior_within_50ci); mean(m2_delta_w_prior_within_90ci)
 # m2: save model objects --------------------------------------------------
 
 save(list = ls(pattern = "m2_"), file = here::here("output", "model-Rdata", "m2_model_objects.Rdata"))
+
+
+##########################################################################################################
+# M3: Opponent Actor Learning (OpAL) ---------------------------------------
+
+
+model_to_fit   <- model_opal_pp
+
+## Remove stan model .exe file if already exists
+if(file.exists(here::here('scripts', 'stan-files', paste(model_to_fit$stan_file_noext, '.exe', sep = ""))) == T){
+  file.remove(here::here('scripts', 'stan-files', paste(model_to_fit$stan_file_noext, '.exe', sep = "")))
+}
+
+
+## Pre-compile model
+compiled_model <- cmdstan_model(
+  stan_file       = here::here('scripts', 'stan-files', model_to_fit$stan_file),
+  force_recompile = T
+)
+
+# ## Create containers for participant-level estimates
+# m3_est_beta          <- rep(NA, times = n_participants)    ## Inverse temperature
+# m3_est_w_prior       <- rep(NA, times = n_participants)    ## Weight on prior
+# m3_est_w_evidence    <- rep(NA, times = n_participants)    ## Weight on evidence
+# m3_est_w_prior_sr    <- rep(NA, times = n_participants)    ## Weight on prior after SR
+# m3_est_w_evidence_sr <- rep(NA, times = n_participants)    ## Weight on evidence after SR
+# m3_est_delta_w_prior <- rep(NA, times = n_participants)    ## Offset parameter: i.e., deviation in w_prior during sleep loss
+# 
+# m3_beta_within_50ci          <- rep(NA, times = n_participants)
+# m3_beta_within_90ci          <- rep(NA, times = n_participants)
+# m3_w_prior_within_50ci       <- rep(NA, times = n_participants)
+# m3_w_prior_within_90ci       <- rep(NA, times = n_participants)
+# m3_w_evidence_within_50ci    <- rep(NA, times = n_participants)
+# m3_w_evidence_within_90ci    <- rep(NA, times = n_participants)
+# m3_w_prior_sr_within_50ci    <- rep(NA, times = n_participants)
+# m3_w_prior_sr_within_90ci    <- rep(NA, times = n_participants)
+# m3_w_evidence_sr_within_50ci <- rep(NA, times = n_participants)
+# m3_w_evidence_sr_within_90ci <- rep(NA, times = n_participants)
+# m3_delta_w_prior_within_50ci <- rep(NA, times = n_participants) ## I really need a shorter variable name for this.
+# m3_delta_w_prior_within_90ci <- rep(NA, times = n_participants)
+
+
+## Sampling
+if(run_model_flag){
+  tic()
+  m3_fit <- compiled_model$sample(
+    data            = stan_data,
+    chains          = 4,
+    parallel_chains = 4,
+    refresh         = 100,
+    iter_warmup     = 500,
+    iter_sampling   = 1000,
+    save_warmup     = FALSE
+  )
+  toc()
+  
+  ## Play audio cue
+  beepr::beep("fanfare")
+  
+  ## Print and/or save samples
+  m3_fit$save_output_files(
+    dir      = here::here("output"),
+    basename = model_to_fit$model_name
+  )
+}
+
+# Extract variables ----------------
 
 
 # Model comparison --------------------------------------------------------

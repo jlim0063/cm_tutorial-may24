@@ -39,7 +39,8 @@ sim_data <- data.table(subject, condition, trial_no, cresp, reward, trials_since
 ## Because we are generating contingencies trial by trial, this code chunk may take a while
 set.seed(123)
 
-for (subject_x in 1:n_pt) {
+for (subject_x in 1:1) {
+# for (subject_x in 1:n_pt) {
   # Print visual confirmation
   message(paste("Generating trial contingencies for Subject ID ", subject_x))
   
@@ -172,6 +173,7 @@ sim_data[, pt_NG_B := as.double()]       # Participant's subjective Q value asso
 sim_data[, pr_choose_a := as.double()]   # Participant's probability of choosing A (after applying softmax function)
 sim_data[, outcome:=as.double()]         # Outcome of participant's choice
 
+# for (subject_x in 1:1){
 for (subject_x in unique(sim_data$subject)){
   # Print visual confirmation
   message(paste("Simulating choices for Subject ID:", subject_x))
@@ -212,6 +214,14 @@ for (subject_x in unique(sim_data$subject)){
         NG_A <- sim_data[subject == subject_x & condition == cond_x & trial_no == trial_t, pt_NG_A]
         NG_B <- sim_data[subject == subject_x & condition == cond_x & trial_no == trial_t, pt_NG_B] 
       }
+      
+      ## Test case for NG values
+      # if (NG_A > .75){
+      #   NG_A <- 3
+      # }
+      # if (NG_B > .75){
+      #   NG_B <- 3
+      # }
       
       # Extract effective beta values for each participant
       beta_G_effective  <- unique(sim_data[subject == subject_x, "true_beta_G"]) %>% as.numeric()

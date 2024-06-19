@@ -106,6 +106,12 @@ model{
    G[actions[trial_ix] + 1]  += (eta_G[p_ix[trial_ix]] * G[actions[trial_ix] + 1]) * (outcomes[trial_ix] - G[actions[trial_ix] + 1]);
    NG[actions[trial_ix] + 1] += (eta_NG[p_ix[trial_ix]] * NG[actions[trial_ix] + 1]) * (NG[actions[trial_ix] + 1] - outcomes[trial_ix]);
    
+   
+   // Temporary fix to rein in NG values.
+   if (NG[actions[trial_ix] + 1] > 100){
+     NG[actions[trial_ix] + 1] = 3;
+   }
+   
    // Specify probability
    actions[trial_ix] ~ bernoulli_logit(alpha[trial_ix]);
   }
@@ -113,9 +119,9 @@ model{
 
 generated quantities {
   // containers for transformed means of beta
-  real beta_G_mu = Phi_approx(beta_G_mu_pr) * 2;
+  real beta_G_mu  = Phi_approx(beta_G_mu_pr) * 2;
   real beta_NG_mu = Phi_approx(beta_NG_mu_pr) * 2;
-  real eta_G_mu  = Phi_approx(eta_G_mu_pr);
+  real eta_G_mu   = Phi_approx(eta_G_mu_pr);
   real eta_NG_mu  = Phi_approx(eta_NG_mu_pr);
   
   // containers
@@ -150,6 +156,11 @@ generated quantities {
     // Update G and NG weights for next trial
     G[actions[trial_ix] + 1]  += (eta_G[p_ix[trial_ix]] * G[actions[trial_ix] + 1]) * (outcomes[trial_ix] - G[actions[trial_ix] + 1]);
     NG[actions[trial_ix] + 1] += (eta_NG[p_ix[trial_ix]] * NG[actions[trial_ix] + 1]) * (NG[actions[trial_ix] + 1] - outcomes[trial_ix]);
+    
+    // Temporary fix to rein in NG values.
+    if (NG[actions[trial_ix] + 1] > 100){
+     NG[actions[trial_ix] + 1] = 3;
+    }
     
     // Choice log likelihood
     // lpmf = log prob mass function
